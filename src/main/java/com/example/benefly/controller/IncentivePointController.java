@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * 激励积点 (Incentive Points) API Controller
  */
 @RestController
-@RequestMapping("/api/incentive-points")
+@RequestMapping("/welfare/point")
 public class IncentivePointController {
 
     private final IncentivePointService incentivePointService;
@@ -82,5 +83,100 @@ public class IncentivePointController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * 激励积点数据加载
+     * 
+     * @param requestBody JSON request body
+     * @return JSON response with incentive points data
+     */
+    @PostMapping("/queryPage")
+    public Map<String, Object> queryPage(@RequestBody Map<String, Object> requestBody) {
+        // Extract query parameters from request body
+        Long employeeId = requestBody.containsKey("employeeId") ? Long.valueOf(requestBody.get("employeeId").toString()) : null;
+        String status = requestBody.containsKey("status") ? (String) requestBody.get("status") : null;
+        
+        List<IncentivePoint> incentivePoints;
+        if (employeeId != null) {
+            if (status != null && !status.isEmpty()) {
+                incentivePoints = incentivePointService.getIncentivePointsByEmployeeIdAndStatus(employeeId, status);
+            } else {
+                incentivePoints = incentivePointService.getIncentivePointsByEmployeeId(employeeId);
+            }
+        } else {
+            incentivePoints = incentivePointService.getAllIncentivePoints();
+        }
+        
+        return com.example.benefly.util.JsonResponse.success(incentivePoints);
+    }
+    
+    /**
+     * 激励积点数据处理
+     * 
+     * @param requestBody JSON request body with incentive point data
+     * @return JSON response with saved incentive point
+     */
+    @PostMapping("/saveData")
+    public Map<String, Object> saveData(@RequestBody Map<String, Object> requestBody) {
+        try {
+            // Convert request body to IncentivePoint object
+            IncentivePoint incentivePoint = convertMapToIncentivePoint(requestBody);
+            
+            // Save or update incentive point
+            IncentivePoint savedIncentivePoint;
+            if (incentivePoint.getId() != null) {
+                savedIncentivePoint = incentivePointService.updateIncentivePoint(incentivePoint.getId(), incentivePoint);
+                if (savedIncentivePoint == null) {
+                    return com.example.benefly.util.JsonResponse.error("404", "Incentive point not found");
+                }
+            } else {
+                savedIncentivePoint = incentivePointService.createIncentivePoint(incentivePoint);
+            }
+            
+            return com.example.benefly.util.JsonResponse.success(savedIncentivePoint, "Incentive point saved successfully");
+        } catch (Exception e) {
+            return com.example.benefly.util.JsonResponse.error("500", "Error saving incentive point: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Convert Map to IncentivePoint object
+     */
+    private IncentivePoint convertMapToIncentivePoint(Map<String, Object> map) {
+        // Implementation of conversion logic
+        // This would typically use ObjectMapper or manual conversion
+        // For simplicity, we'll use a basic implementation here
+        IncentivePoint incentivePoint = new IncentivePoint();
+        
+        if (map.containsKey("id")) {
+            incentivePoint.setId(Long.valueOf(map.get("id").toString()));
+        }
+        if (map.containsKey("employeeId")) {
+            incentivePoint.setEmployeeId(Long.valueOf(map.get("employeeId").toString()));
+        }
+        if (map.containsKey("pointType")) {
+            incentivePoint.setPointType((String) map.get("pointType"));
+        }
+        if (map.containsKey("pointSource")) {
+            incentivePoint.setPointSource((String) map.get("pointSource"));
+        }
+        if (map.containsKey("pointAmount") && map.get("pointAmount") != null) {
+            incentivePoint.setPointAmount(new java.math.BigDecimal(map.get("pointAmount").toString()));
+        }
+        if (map.containsKey("earnedDate") && map.get("earnedDate") != null) {
+            incentivePoint.setEarnedDate(java.time.LocalDateTime.parse(map.get("earnedDate").toString()));
+        }
+        if (map.containsKey("expiryDate") && map.get("expiryDate") != null) {
+            incentivePoint.setExpiryDate(java.time.LocalDateTime.parse(map.get("expiryDate").toString()));
+        }
+        if (map.containsKey("status")) {
+            incentivePoint.setStatus((String) map.get("status"));
+        }
+        if (map.containsKey("description")) {
+            incentivePoint.setDescription((String) map.get("description"));
+        }
+        
+        return incentivePoint;
     }
 }

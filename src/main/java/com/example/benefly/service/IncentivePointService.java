@@ -71,4 +71,11 @@ public class IncentivePointService {
         }
         return false;
     }
+    
+    /**
+     * Get incentive points by employee ID and status
+     */
+    public List<IncentivePoint> getIncentivePointsByEmployeeIdAndStatus(Long employeeId, String status) {
+        return incentivePointRepository.findByEmployeeIdAndStatus(employeeId, status);
+    }
 }

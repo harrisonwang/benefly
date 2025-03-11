@@ -74,4 +74,11 @@ public class SupplementaryMedicalService {
         }
         return false;
     }
+    
+    /**
+     * Get supplementary medical records by employee ID and status
+     */
+    public List<SupplementaryMedical> getSupplementaryMedicalsByEmployeeIdAndStatus(Long employeeId, String status) {
+        return supplementaryMedicalRepository.findByEmployeeIdAndStatus(employeeId, status);
+    }
 }
