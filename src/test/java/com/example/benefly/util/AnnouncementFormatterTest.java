@@ -106,4 +106,60 @@ class AnnouncementFormatterTest {
         // Then
         assertNull(result);
     }
+    
+    @Test
+    void testMarkImportanceLow() {
+        // Given
+        String html = "<h3>Test Announcement</h3><p>Content</p>";
+        String importance = "low";
+        
+        // When
+        String result = AnnouncementFormatter.markImportance(html, importance);
+        
+        // Then
+        String expected = "<div class=\"announcement-low\"><h3>Test Announcement</h3><p>Content</p></div>";
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    void testMarkImportanceMedium() {
+        // Given
+        String html = "<h3>Test Announcement</h3><p>Content</p>";
+        String importance = "medium";
+        
+        // When
+        String result = AnnouncementFormatter.markImportance(html, importance);
+        
+        // Then
+        String expected = "<div class=\"announcement-medium\"><h3>Test Announcement</h3><p>Content</p></div>";
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    void testMarkImportanceHigh() {
+        // Given
+        String html = "<h3>Test Announcement</h3><p>Content</p>";
+        String importance = "high";
+        
+        // When
+        String result = AnnouncementFormatter.markImportance(html, importance);
+        
+        // Then
+        String expected = "<div class=\"announcement-high\"><h3 style=\"font-weight: bold;\">Test Announcement</h3><p>Content</p></div>";
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    void testMarkImportanceNull() {
+        // Given
+        String html = "<h3>Test Announcement</h3><p>Content</p>";
+        String importance = null;
+        
+        // When
+        String result = AnnouncementFormatter.markImportance(html, importance);
+        
+        // Then
+        String expected = "<div class=\"announcement-low\"><h3>Test Announcement</h3><p>Content</p></div>";
+        assertEquals(expected, result);
+    }
 }

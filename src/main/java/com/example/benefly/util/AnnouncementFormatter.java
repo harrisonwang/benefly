@@ -54,4 +54,35 @@ public class AnnouncementFormatter {
         // Truncate at the last space
         return content.substring(0, lastSpaceIndex) + "...";
     }
+    
+    /**
+     * Marks an announcement with importance level styling.
+     *
+     * @param html the announcement HTML content
+     * @param importance the importance level ("low", "medium", "high")
+     * @return HTML with appropriate CSS class and styling based on importance
+     */
+    public static String markImportance(String html, String importance) {
+        if (importance == null) {
+            importance = "low";
+        }
+        
+        String cssClass;
+        switch (importance.toLowerCase()) {
+            case "medium":
+                cssClass = "announcement-medium";
+                break;
+            case "high":
+                // For high importance, also make the title bold
+                html = html.replace("<h3>", "<h3 style=\"font-weight: bold;\">");
+                cssClass = "announcement-high";
+                break;
+            case "low":
+            default:
+                cssClass = "announcement-low";
+                break;
+        }
+        
+        return "<div class=\"" + cssClass + "\">" + html + "</div>";
+    }
 }
