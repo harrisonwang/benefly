@@ -3,6 +3,7 @@ package com.example.benefly.util;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class AnnouncementFormatterTest {
 
@@ -52,5 +53,57 @@ class AnnouncementFormatterTest {
         // Then
         String expected = "<h3>Empty Content Test</h3><p></p><small>发布于 2023-07-10 by Test User</small>";
         assertEquals(expected, result);
+    }
+    
+    @Test
+    void testTruncateContentShorterThanMaxLength() {
+        // Given
+        String content = "Short content";
+        int maxLength = 20;
+        
+        // When
+        String result = AnnouncementFormatter.truncateContent(content, maxLength);
+        
+        // Then
+        assertEquals(content, result);
+    }
+    
+    @Test
+    void testTruncateContentLongerThanMaxLength() {
+        // Given
+        String content = "This is a long content that needs to be truncated";
+        int maxLength = 20;
+        
+        // When
+        String result = AnnouncementFormatter.truncateContent(content, maxLength);
+        
+        // Then
+        assertEquals("This is a long...", result);
+    }
+    
+    @Test
+    void testTruncateContentWithNoSpaces() {
+        // Given
+        String content = "ThisIsALongContentWithNoSpaces";
+        int maxLength = 10;
+        
+        // When
+        String result = AnnouncementFormatter.truncateContent(content, maxLength);
+        
+        // Then
+        assertEquals("ThisIsALon...", result);
+    }
+    
+    @Test
+    void testTruncateContentWithNull() {
+        // Given
+        String content = null;
+        int maxLength = 10;
+        
+        // When
+        String result = AnnouncementFormatter.truncateContent(content, maxLength);
+        
+        // Then
+        assertNull(result);
     }
 }

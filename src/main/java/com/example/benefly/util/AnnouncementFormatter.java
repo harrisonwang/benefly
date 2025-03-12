@@ -29,4 +29,29 @@ public class AnnouncementFormatter {
         
         return htmlBuilder.toString();
     }
+    
+    /**
+     * Truncates content for preview in announcement lists.
+     * Ensures truncation occurs at word boundaries.
+     *
+     * @param content the content to truncate
+     * @param maxLength the maximum length of the truncated content
+     * @return truncated content with ellipsis if needed
+     */
+    public static String truncateContent(String content, int maxLength) {
+        if (content == null || content.length() <= maxLength) {
+            return content;
+        }
+        
+        // Find the last space before maxLength
+        int lastSpaceIndex = content.substring(0, maxLength).lastIndexOf(' ');
+        
+        // If no space found, truncate at maxLength
+        if (lastSpaceIndex == -1) {
+            return content.substring(0, maxLength) + "...";
+        }
+        
+        // Truncate at the last space
+        return content.substring(0, lastSpaceIndex) + "...";
+    }
 }
