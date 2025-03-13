@@ -1,9 +1,12 @@
 package com.example.benefly.controller;
 
+import com.example.benefly.model.AnnouncementDetailResponse;
 import com.example.benefly.model.AnnouncementResponse;
 import com.example.benefly.service.AnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,5 +40,17 @@ public class AnnouncementController {
             @RequestParam(defaultValue = "date") String sort) {
         
         return announcementService.getAnnouncements(page, limit, sort);
+    }
+    
+    /**
+     * Get announcement by ID with attachments.
+     *
+     * @param id announcement ID
+     * @return announcement detail response
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<AnnouncementDetailResponse> getAnnouncementById(@PathVariable Long id) {
+        AnnouncementDetailResponse response = announcementService.getAnnouncementById(id);
+        return ResponseEntity.ok(response);
     }
 }

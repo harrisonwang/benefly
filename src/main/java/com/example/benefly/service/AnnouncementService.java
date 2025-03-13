@@ -1,7 +1,10 @@
 package com.example.benefly.service;
 
+import com.example.benefly.exception.AnnouncementNotFoundException;
 import com.example.benefly.model.Announcement;
+import com.example.benefly.model.AnnouncementDetailResponse;
 import com.example.benefly.model.AnnouncementResponse;
+import com.example.benefly.model.Attachment;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -12,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -130,6 +134,61 @@ public class AnnouncementService {
                 return 1;
             default:
                 return 0;
+        }
+    }
+    
+    /**
+     * Get announcement by ID with attachments.
+     *
+     * @param id announcement ID
+     * @return announcement detail response
+     * @throws AnnouncementNotFoundException if announcement not found
+     */
+    public AnnouncementDetailResponse getAnnouncementById(Long id) {
+        try {
+            // Load all announcements
+            List<Announcement> allAnnouncements = loadAnnouncementsFromJson();
+            
+            // Find announcement by ID
+            Announcement announcement = allAnnouncements.stream()
+                .filter(a -> a.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new AnnouncementNotFoundException(id));
+            
+            // Load attachments for this announcement
+            List<Attachment> attachments = loadAttachmentsForAnnouncement(id);
+            
+            return new AnnouncementDetailResponse(announcement, attachments);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load announcements", e);
+        }
+    }
+
+    /**
+     * Load attachments for an announcement.
+     *
+     * @param announcementId announcement ID
+     * @return list of attachments
+     * @throws IOException if file cannot be read
+     */
+    private List<Attachment> loadAttachmentsForAnnouncement(Long announcementId) throws IOException {
+        ClassPathResource resource = new ClassPathResource("announcements.json");
+        try (InputStream inputStream = resource.getInputStream()) {
+            // Parse the JSON to get attachments for the specific announcement
+            return objectMapper.readValue(inputStream, new TypeReference<List<Map<String, Object>>>() {})
+                .stream()
+                .filter(map -> Long.valueOf(map.get("id").toString()).equals(announcementId))
+                .filter(map -> map.containsKey("attachments"))
+                .flatMap(map -> ((List<Map<String, Object>>) map.get("attachments")).stream())
+                .map(attachMap -> {
+                    Attachment attachment = new Attachment();
+                    attachment.setId(Long.valueOf(attachMap.get("id").toString()));
+                    attachment.setFileName((String) attachMap.get("fileName"));
+                    attachment.setFileType((String) attachMap.get("fileType"));
+                    attachment.setFileUrl((String) attachMap.get("fileUrl"));
+                    return attachment;
+                })
+                .collect(Collectors.toList());
         }
     }
 }

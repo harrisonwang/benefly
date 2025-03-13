@@ -1,7 +1,10 @@
 package com.example.benefly.service;
 
+import com.example.benefly.exception.AnnouncementNotFoundException;
 import com.example.benefly.model.Announcement;
+import com.example.benefly.model.AnnouncementDetailResponse;
 import com.example.benefly.model.AnnouncementResponse;
+import com.example.benefly.model.Attachment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -81,5 +84,24 @@ class AnnouncementServiceTest {
         // Then
         assertNotNull(response);
         assertTrue(response.getCurrentPage() <= response.getTotalPages());
+    }
+    
+    @Test
+    void testGetAnnouncementById() {
+        // When
+        AnnouncementDetailResponse response = announcementService.getAnnouncementById(1L);
+        
+        // Then
+        assertNotNull(response);
+        assertNotNull(response.getAnnouncement());
+        assertEquals(1L, response.getAnnouncement().getId());
+    }
+
+    @Test
+    void testGetAnnouncementByIdNotFound() {
+        // When & Then
+        assertThrows(AnnouncementNotFoundException.class, () -> {
+            announcementService.getAnnouncementById(999L);
+        });
     }
 }

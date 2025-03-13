@@ -1,10 +1,14 @@
 package com.example.benefly.model;
 
 import java.time.LocalDate;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Model class representing an announcement.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Announcement {
     private Long id;
     private String title;
@@ -12,6 +16,7 @@ public class Announcement {
     private LocalDate publishDate;
     private String author;
     private String importance;
+    private List<Attachment> attachments;
 
     public Announcement() {
     }
@@ -71,5 +76,13 @@ public class Announcement {
 
     public void setImportance(String importance) {
         this.importance = importance;
+    }
+    
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+    
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }
